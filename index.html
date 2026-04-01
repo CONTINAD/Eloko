@@ -2077,158 +2077,141 @@
     })();
 
     // ============================================
-    // LIVE TOKEN DATA (Helius RPC + Jupiter)
+    // LIVE TOKEN DATA (Helius + DexScreener + Jupiter)
     // ============================================
     const MINT = 'FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump';
     const HELIUS = 'https://mainnet.helius-rpc.com/?api-key=d319b384-85ac-4f12-bd1f-18458edc923b';
 
     async function fetchHolders() {
+      const el = document.getElementById('statHolders');
       try {
+        // Use Helius getProgramAccounts to count all token holders
         const res = await fetch(HELIUS, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             jsonrpc: '2.0',
             id: 1,
-            method: 'getTokenAccounts',
-            params: {
-              mint: MINT,
-              limit: 1000,
-              options: { showZeroBalance: false }
-            }
+            method: 'getProgramAccounts',
+            params: [
+              'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+              {
+                encoding: 'jsonParsed',
+                filters: [
+                  { dataSize: 165 },
+                  { memcmp: { offset: 0, bytes: MINT } }
+                ]
+              }
+            ]
           })
         });
         const data = await res.json();
         if (data.result) {
-          let total = 0;
-          let page = data.result;
-
-          // Count first page
-          if (page.token_accounts) {
-            total += page.token_accounts.length;
-
-            // Paginate through all holders
-            while (page.token_accounts.length === 1000) {
-              const lastAccount = page.token_accounts[page.token_accounts.length - 1].address;
-              const nextRes = await fetch(HELIUS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  jsonrpc: '2.0',
-                  id: 1,
-                  method: 'getTokenAccounts',
-                  params: {
-                    mint: MINT,
-                    limit: 1000,
-                    cursor: lastAccount,
-                    options: { showZeroBalance: false }
-                  }
-                })
-              });
-              const nextData = await nextRes.json();
-              if (nextData.result && nextData.result.token_accounts) {
-                page = nextData.result;
-                total += page.token_accounts.length;
-              } else {
-                break;
-              }
-            }
-          }
-
-          document.getElementById('statHolders').textContent = total.toLocaleString();
+          const active = data.result.filter(acc => {
+            const info = acc.account?.data?.parsed?.info;
+            if (!info) return false;
+            const amt = info.tokenAmount?.uiAmount;
+            return amt && amt > 0;
+          }).length;
+          el.textContent = active.toLocaleString();
         }
       } catch (e) {
         console.log('Holders fetch error:', e);
-        // Fallback: try DAS API
-        try {
-          const fb = await fetch(HELIUS, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getProgramAccounts',
-              params: [
-                'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-                {
-                  encoding: 'jsonParsed',
-                  filters: [
-                    { dataSize: 165 },
-                    { memcmp: { offset: 0, bytes: MINT } }
-                  ]
-                }
-              ]
-            })
-          });
-          const fbData = await fb.json();
-          if (fbData.result) {
-            const active = fbData.result.filter(acc => {
-              const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
-              return amt && amt > 0;
-            }).length;
-            document.getElementById('statHolders').textContent = active.toLocaleString();
-          }
-        } catch (e2) {
-          console.log('Fallback holders error:', e2);
-        }
       }
     }
 
-    async function fetchPrice() {
+    async function fetchPriceAndMcap() {
+      const priceEl = document.getElementById('statPrice');
+      const mcapEl = document.getElementById('statMcap');
+
+      // Try DexScreener first (works for pump.fun bonding curve tokens)
+      try {
+        const res = await fetch('https://api.dexscreener.com/tokens/v1/solana/' + MINT);
+        const pairs = await res.json();
+        if (pairs && pairs.length > 0) {
+          const pair = pairs[0];
+          const price = parseFloat(pair.priceUsd);
+          const mcap = pair.marketCap || pair.fdv || 0;
+
+          if (price) {
+            if (price < 0.00001) {
+              priceEl.textContent = '$' + price.toExponential(2);
+            } else if (price < 0.01) {
+              priceEl.textContent = '$' + price.toFixed(8);
+            } else if (price < 1) {
+              priceEl.textContent = '$' + price.toFixed(6);
+            } else {
+              priceEl.textContent = '$' + price.toFixed(4);
+            }
+          }
+
+          if (mcap) {
+            if (mcap >= 1000000) {
+              mcapEl.textContent = '$' + (mcap / 1000000).toFixed(2) + 'M';
+            } else if (mcap >= 1000) {
+              mcapEl.textContent = '$' + (mcap / 1000).toFixed(1) + 'K';
+            } else {
+              mcapEl.textContent = '$' + Math.floor(mcap);
+            }
+          }
+          return;
+        }
+      } catch (e) {
+        console.log('DexScreener error:', e);
+      }
+
+      // Fallback: Jupiter price API
       try {
         const res = await fetch('https://api.jup.ag/price/v2?ids=' + MINT);
         const data = await res.json();
         if (data.data && data.data[MINT]) {
           const price = parseFloat(data.data[MINT].price);
-          const priceEl = document.getElementById('statPrice');
-          const mcapEl = document.getElementById('statMcap');
+          if (price) {
+            if (price < 0.00001) {
+              priceEl.textContent = '$' + price.toExponential(2);
+            } else if (price < 0.01) {
+              priceEl.textContent = '$' + price.toFixed(8);
+            } else if (price < 1) {
+              priceEl.textContent = '$' + price.toFixed(6);
+            } else {
+              priceEl.textContent = '$' + price.toFixed(4);
+            }
 
-          if (price < 0.00001) {
-            priceEl.textContent = '$' + price.toExponential(2);
-          } else if (price < 0.01) {
-            priceEl.textContent = '$' + price.toFixed(8);
-          } else if (price < 1) {
-            priceEl.textContent = '$' + price.toFixed(6);
-          } else {
-            priceEl.textContent = '$' + price.toFixed(4);
-          }
-
-          // Get actual supply from Helius
-          const supplyRes = await fetch(HELIUS, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getTokenSupply',
-              params: [MINT]
-            })
-          });
-          const supplyData = await supplyRes.json();
-          let supply = 1000000000; // default 1B for pump.fun
-          if (supplyData.result && supplyData.result.value) {
-            supply = parseFloat(supplyData.result.value.uiAmountString || supplyData.result.value.uiAmount);
-          }
-
-          const mcap = price * supply;
-          if (mcap >= 1000000) {
-            mcapEl.textContent = '$' + (mcap / 1000000).toFixed(2) + 'M';
-          } else if (mcap >= 1000) {
-            mcapEl.textContent = '$' + (mcap / 1000).toFixed(1) + 'K';
-          } else {
-            mcapEl.textContent = '$' + mcap.toFixed(0);
+            // Get supply for mcap calc
+            const supplyRes = await fetch(HELIUS, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                jsonrpc: '2.0', id: 1,
+                method: 'getTokenSupply',
+                params: [MINT]
+              })
+            });
+            const supplyData = await supplyRes.json();
+            let supply = 1000000000;
+            if (supplyData.result?.value) {
+              supply = parseFloat(supplyData.result.value.uiAmountString || supplyData.result.value.uiAmount);
+            }
+            const mcap = price * supply;
+            if (mcap >= 1000000) {
+              mcapEl.textContent = '$' + (mcap / 1000000).toFixed(2) + 'M';
+            } else if (mcap >= 1000) {
+              mcapEl.textContent = '$' + (mcap / 1000).toFixed(1) + 'K';
+            } else {
+              mcapEl.textContent = '$' + Math.floor(mcap);
+            }
           }
         }
       } catch (e) {
-        console.log('Price fetch error:', e);
+        console.log('Jupiter price error:', e);
       }
     }
 
-    // Fetch on load and refresh every 30s
+    // Fetch on load and refresh every 15s
     fetchHolders();
-    fetchPrice();
-    setInterval(fetchHolders, 30000);
-    setInterval(fetchPrice, 30000);
+    fetchPriceAndMcap();
+    setInterval(fetchHolders, 15000);
+    setInterval(fetchPriceAndMcap, 15000);
 
     // ============================================
     // SMOOTH SCROLL
