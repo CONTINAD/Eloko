@@ -2077,10 +2077,9 @@
     })();
 
     // ============================================
-    // LIVE TOKEN DATA — DexScreener + Helius
+    // LIVE TOKEN DATA — DexScreener + Rugcheck
     // ============================================
     const MINT = 'FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump';
-    const HELIUS = 'https://mainnet.helius-rpc.com/?api-key=d319b384-85ac-4f12-bd1f-18458edc923b';
 
     function formatPrice(p) {
       if (p < 0.00001) return '$' + p.toExponential(2);
@@ -2100,7 +2099,7 @@
       const priceEl = document.getElementById('statPrice');
       const mcapEl = document.getElementById('statMcap');
 
-      // DexScreener — price, mcap, and tx count as holder proxy
+      // DexScreener — price + mcap
       try {
         const res = await fetch('https://api.dexscreener.com/tokens/v1/solana/' + MINT);
         const pairs = await res.json();
@@ -2115,45 +2114,12 @@
         console.log('DexScreener error:', e);
       }
 
-      // Helius — real holder count via getTokenAccounts (DAS)
+      // Rugcheck — real holder count
       try {
-        let total = 0;
-        let cursor = undefined;
-        let keepGoing = true;
-
-        while (keepGoing) {
-          const params = { mint: MINT, limit: 1000 };
-          if (cursor) params.cursor = cursor;
-
-          const res = await fetch(HELIUS, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getTokenAccounts',
-              params: params
-            })
-          });
-          const data = await res.json();
-
-          if (data.result && data.result.token_accounts && data.result.token_accounts.length > 0) {
-            total += data.result.token_accounts.length;
-            if (data.result.token_accounts.length < 1000) {
-              keepGoing = false;
-            } else {
-              cursor = data.result.cursor || data.result.token_accounts[data.result.token_accounts.length - 1].address;
-            }
-          } else if (data.error) {
-            console.log('Helius error:', data.error.message);
-            keepGoing = false;
-          } else {
-            keepGoing = false;
-          }
-        }
-
-        if (total > 0) {
-          holdersEl.textContent = total.toLocaleString();
+        const res = await fetch('https://api.rugcheck.xyz/v1/tokens/' + MINT + '/report');
+        const data = await res.json();
+        if (data.totalHolders) {
+          holdersEl.textContent = data.totalHolders.toLocaleString();
         }
       } catch (e) {
         console.log('Holders error:', e);
