@@ -2077,36 +2077,76 @@
     })();
 
     // ============================================
-    // LIVE TOKEN DATA
+    // LIVE TOKEN DATA (Helius RPC + Jupiter)
     // ============================================
     const MINT = 'FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump';
-    const RPC = 'https://api.mainnet-beta.solana.com';
+    const HELIUS = 'https://mainnet.helius-rpc.com/?api-key=d319b384-85ac-4f12-bd1f-18458edc923b';
 
     async function fetchHolders() {
       try {
-        // Get token largest accounts to estimate holder count
-        // Use getProgramAccounts with the token mint filter
-        const res = await fetch(RPC, {
+        const res = await fetch(HELIUS, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             jsonrpc: '2.0',
             id: 1,
-            method: 'getTokenLargestAccounts',
-            params: [MINT]
+            method: 'getTokenAccounts',
+            params: {
+              mint: MINT,
+              limit: 1000,
+              options: { showZeroBalance: false }
+            }
           })
         });
         const data = await res.json();
-        if (data.result && data.result.value) {
-          // This gives top 20, use as a proxy or try supply approach
-          const holders = data.result.value.filter(a => parseFloat(a.amount) > 0).length;
-          // For actual count, we need to get all token accounts
-          const countRes = await fetch(RPC, {
+        if (data.result) {
+          let total = 0;
+          let page = data.result;
+
+          // Count first page
+          if (page.token_accounts) {
+            total += page.token_accounts.length;
+
+            // Paginate through all holders
+            while (page.token_accounts.length === 1000) {
+              const lastAccount = page.token_accounts[page.token_accounts.length - 1].address;
+              const nextRes = await fetch(HELIUS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  jsonrpc: '2.0',
+                  id: 1,
+                  method: 'getTokenAccounts',
+                  params: {
+                    mint: MINT,
+                    limit: 1000,
+                    cursor: lastAccount,
+                    options: { showZeroBalance: false }
+                  }
+                })
+              });
+              const nextData = await nextRes.json();
+              if (nextData.result && nextData.result.token_accounts) {
+                page = nextData.result;
+                total += page.token_accounts.length;
+              } else {
+                break;
+              }
+            }
+          }
+
+          document.getElementById('statHolders').textContent = total.toLocaleString();
+        }
+      } catch (e) {
+        console.log('Holders fetch error:', e);
+        // Fallback: try DAS API
+        try {
+          const fb = await fetch(HELIUS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               jsonrpc: '2.0',
-              id: 2,
+              id: 1,
               method: 'getProgramAccounts',
               params: [
                 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
@@ -2120,17 +2160,17 @@
               ]
             })
           });
-          const countData = await countRes.json();
-          if (countData.result) {
-            const activeHolders = countData.result.filter(acc => {
+          const fbData = await fb.json();
+          if (fbData.result) {
+            const active = fbData.result.filter(acc => {
               const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
               return amt && amt > 0;
             }).length;
-            document.getElementById('statHolders').textContent = activeHolders.toLocaleString();
+            document.getElementById('statHolders').textContent = active.toLocaleString();
           }
+        } catch (e2) {
+          console.log('Fallback holders error:', e2);
         }
-      } catch (e) {
-        console.log('Holders fetch error:', e);
       }
     }
 
@@ -2143,18 +2183,36 @@
           const priceEl = document.getElementById('statPrice');
           const mcapEl = document.getElementById('statMcap');
 
-          if (price < 0.0001) {
+          if (price < 0.00001) {
             priceEl.textContent = '$' + price.toExponential(2);
+          } else if (price < 0.01) {
+            priceEl.textContent = '$' + price.toFixed(8);
           } else if (price < 1) {
             priceEl.textContent = '$' + price.toFixed(6);
           } else {
             priceEl.textContent = '$' + price.toFixed(4);
           }
 
-          // Estimate mcap (1B supply for pump.fun tokens)
-          const mcap = price * 1000000000;
+          // Get actual supply from Helius
+          const supplyRes = await fetch(HELIUS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'getTokenSupply',
+              params: [MINT]
+            })
+          });
+          const supplyData = await supplyRes.json();
+          let supply = 1000000000; // default 1B for pump.fun
+          if (supplyData.result && supplyData.result.value) {
+            supply = parseFloat(supplyData.result.value.uiAmountString || supplyData.result.value.uiAmount);
+          }
+
+          const mcap = price * supply;
           if (mcap >= 1000000) {
-            mcapEl.textContent = '$' + (mcap / 1000000).toFixed(1) + 'M';
+            mcapEl.textContent = '$' + (mcap / 1000000).toFixed(2) + 'M';
           } else if (mcap >= 1000) {
             mcapEl.textContent = '$' + (mcap / 1000).toFixed(1) + 'K';
           } else {
