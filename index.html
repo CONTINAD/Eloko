@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$ELOKO — The Animal Runner of April</title>
+  <meta name="description" content="$ELOKO - The next San Diego Zoo cheetah cub to hit 1 million. The Animal Runner of April.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    :root {
+      --fire-1: #ff6a00;
+      --fire-2: #ff9500;
+      --fire-3: #ffcc00;
+      --fire-4: #ff4500;
+      --fire-5: #ff8c00;
+      --dark-1: #040604;
+      --dark-2: #080c08;
+      --dark-3: #0e1410;
+      --dark-4: #151e18;
+      --dark-5: #1c2820;
+      --text-primary: #f0f0f5;
+      --text-secondary: #a0a898;
+      --text-muted: #5e6e58;
+      --glow-orange: rgba(255, 106, 0, 0.5);
+      --glow-yellow: rgba(255, 204, 0, 0.3);
+      --gradient-fire: linear-gradient(135deg, #ff4500, #ff6a00, #ff9500, #ffcc00);
+      --gradient-fire-rev: linear-gradient(135deg, #ffcc00, #ff9500, #ff6a00, #ff4500);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-lg: 24px;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--dark-1);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img { max-width: 100%; height: auto; }
+    a { text-decoration: none; }
+
+    /* ============================================
+       CANVAS
+       ============================================ */
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ============================================
+       UTILITIES
+       ============================================ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    .highlight {
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .center { text-align: center; }
+
+    /* ============================================
+       NAVBAR
+       ============================================ */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 14px 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(5, 5, 8, 0.6);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border-bottom: 1px solid rgba(255, 106, 0, 0.08);
+    }
+
+    .navbar.scrolled {
+      padding: 8px 0;
+      background: rgba(5, 5, 8, 0.95);
+      border-bottom: 1px solid rgba(255, 106, 0, 0.15);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.4rem;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 8px rgba(255, 106, 0, 0.4));
+    }
+
+    .nav-logo-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 106, 0, 0.5);
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-fire);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .nav-links a:hover { color: var(--fire-2); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      background: var(--gradient-fire);
+      color: var(--dark-1) !important;
+      -webkit-text-fill-color: var(--dark-1);
+      padding: 10px 28px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px var(--glow-orange);
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 35px var(--glow-orange);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .mobile-menu-btn span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--fire-2);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 66px;
+      left: 0;
+      right: 0;
+      background: rgba(5, 5, 8, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 999;
+      border-bottom: 1px solid rgba(255, 106, 0, 0.15);
+    }
+
+    .mobile-menu.active { display: flex; }
+    .mobile-menu a {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 500;
+      padding: 8px 0;
+      transition: color 0.3s ease;
+    }
+    .mobile-menu a:hover { color: var(--fire-2); }
+
+    /* ============================================
+       HERO
+       ============================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--dark-1);
+    }
+
+    .hero-banner-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-banner-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      opacity: 0.3;
+      filter: saturate(1.2);
+    }
+
+    .hero-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 40%, transparent 20%, var(--dark-1) 75%),
+        linear-gradient(180deg, rgba(4,6,4,0.2) 0%, rgba(4,6,4,0.5) 50%, var(--dark-1) 100%);
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Animated gradient background instead of images */
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 20%, rgba(255, 106, 0, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255, 69, 0, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(255, 149, 0, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 120% 80% at 50% 120%, rgba(255, 69, 0, 0.2) 0%, transparent 50%);
+      animation: hero-gradient-shift 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes hero-gradient-shift {
+      0% { opacity: 0.8; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Animated fire orbs */
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orb-float 6s ease-in-out infinite;
+    }
+
+    .hero-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 106, 0, 0.12);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .hero-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 69, 0, 0.1);
+      bottom: -50px;
+      left: -50px;
+      animation-delay: -3s;
+    }
+
+    .hero-orb-3 {
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 204, 0, 0.08);
+      top: 40%;
+      left: 60%;
+      animation-delay: -1.5s;
+    }
+
+    @keyframes orb-float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.1); }
+      66% { transform: translate(-20px, 15px) scale(0.95); }
+    }
+
+    /* Grid pattern overlay */
+    .hero-grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 106, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 106, 0, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.4;
+    }
+
+    .hero-bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(transparent, var(--dark-1));
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 140px 24px 100px;
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 106, 0, 0.1);
+      border: 1px solid rgba(255, 106, 0, 0.25);
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--fire-3);
+      margin-bottom: 36px;
+      animation: badge-glow 2.5s ease-in-out infinite;
+      text-transform: uppercase;
+    }
+
+    @keyframes badge-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 106, 0, 0.1), inset 0 0 20px rgba(255, 106, 0, 0.05); }
+      50% { box-shadow: 0 0 40px rgba(255, 106, 0, 0.25), inset 0 0 30px rgba(255, 106, 0, 0.1); }
+    }
+
+    .hero-mascot {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 36px;
+      position: relative;
+    }
+
+    .mascot-glow {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 106, 0, 0.3), transparent 70%);
+      animation: mascot-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes mascot-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .mascot-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 106, 0, 0.5);
+      box-shadow: 0 0 40px rgba(255, 106, 0, 0.3), 0 0 80px rgba(255, 106, 0, 0.15);
+      position: relative;
+      z-index: 1;
+      background: var(--dark-3);
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(5rem, 14vw, 12rem);
+      font-weight: 900;
+      line-height: 0.95;
+      margin-bottom: 24px;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 60px rgba(255, 106, 0, 0.4));
+      animation: title-fire 3s ease-in-out infinite;
+      letter-spacing: -2px;
+      background-size: 200% 100%;
+    }
+
+    @keyframes title-fire {
+      0%, 100% {
+        filter: drop-shadow(0 0 60px rgba(255, 106, 0, 0.4));
+        background-position: 0% 50%;
+      }
+      50% {
+        filter: drop-shadow(0 0 100px rgba(255, 106, 0, 0.7)) drop-shadow(0 0 30px rgba(255, 204, 0, 0.3));
+        background-position: 100% 50%;
+      }
+    }
+
+    .title-dollar { font-size: 0.75em; }
+
+    .hero-subtitle {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin: 0 auto 44px;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      border-radius: 60px;
+      font-weight: 800;
+      font-size: 1rem;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: none;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: var(--gradient-fire);
+      color: var(--dark-1);
+      box-shadow: 0 4px 30px var(--glow-orange), 0 0 60px rgba(255, 106, 0, 0.15);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 50px var(--glow-orange), 0 0 80px rgba(255, 106, 0, 0.25);
+    }
+
+    .btn-primary:hover::before { opacity: 1; }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 106, 0, 0.08);
+      border-color: rgba(255, 106, 0, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 30px rgba(255, 106, 0, 0.1);
+    }
+
+    .btn-lg {
+      padding: 20px 48px;
+      font-size: 1.15rem;
+    }
+
+    .btn-icon { font-size: 1.2em; }
+
+    /* Hero Stats */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 28px 48px;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(transparent, rgba(255, 106, 0, 0.3), transparent);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid rgba(255, 106, 0, 0.5);
+      border-bottom: 2px solid rgba(255, 106, 0, 0.5);
+      transform: rotate(45deg);
+      animation: scroll-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes scroll-bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.4; }
+      50% { transform: rotate(45deg) translateY(10px); opacity: 1; }
+    }
+
+    /* ============================================
+       TICKER
+       ============================================ */
+    .ticker-bar {
+      background: var(--gradient-fire);
+      padding: 14px 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+      box-shadow: 0 4px 30px rgba(255, 106, 0, 0.3);
+    }
+
+    .ticker-content {
+      display: flex;
+      gap: 60px;
+      animation: ticker-scroll 25s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-content span {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: var(--dark-1);
+      letter-spacing: 3px;
+      flex-shrink: 0;
+    }
+
+    @keyframes ticker-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+    .section {
+      padding: 120px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-tag {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: var(--fire-2);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-family: 'Russo One', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      margin-bottom: 18px;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 64px;
+      line-height: 1.7;
+    }
+
+    .section-desc.center { margin-left: auto; margin-right: auto; }
+
+    /* Section divider glow */
+    .section-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--fire-1), transparent);
+      box-shadow: 0 0 20px var(--glow-orange);
+    }
+
+    /* ============================================
+       ABOUT
+       ============================================ */
+    .about {
+      background: var(--dark-2);
+      background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 106, 0, 0.03) 0%, transparent 50%);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-image {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .image-glow {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(255, 106, 0, 0.2) 0%, rgba(255, 69, 0, 0.05) 50%, transparent 70%);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: img-glow 4s ease-in-out infinite;
+    }
+
+    @keyframes img-glow {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+    }
+
+    .about-img {
+      width: 320px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 24px;
+      border: 2px solid rgba(255, 106, 0, 0.25);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 106, 0, 0.1);
+      background: var(--dark-3);
+    }
+
+    /* Fallback gradient for missing image */
+    .about-img-fallback {
+      width: 320px;
+      height: 320px;
+      border-radius: 24px;
+      border: 2px solid rgba(255, 106, 0, 0.25);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 106, 0, 0.1);
+      background: radial-gradient(circle at 40% 40%, rgba(255, 140, 0, 0.3), rgba(255, 69, 0, 0.15) 40%, var(--dark-3) 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8rem;
+      overflow: hidden;
+    }
+
+    .image-badge {
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-fire);
+      color: var(--dark-1);
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      z-index: 2;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(255, 106, 0, 0.4);
+      text-transform: uppercase;
+    }
+
+    .about-text p {
+      color: var(--text-secondary);
+      line-height: 1.85;
+      margin-bottom: 18px;
+      font-size: 1rem;
+    }
+
+    .about-text strong { color: var(--text-primary); }
+
+    .about-features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 36px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(255, 106, 0, 0.04);
+      border: 1px solid rgba(255, 106, 0, 0.08);
+      padding: 18px 22px;
+      border-radius: var(--radius-sm);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature:hover {
+      background: rgba(255, 106, 0, 0.08);
+      border-color: rgba(255, 106, 0, 0.25);
+      transform: translateX(10px);
+      box-shadow: -4px 0 20px rgba(255, 106, 0, 0.1);
+    }
+
+    .feature-icon {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 106, 0, 0.08);
+      border-radius: 12px;
+      color: var(--fire-1);
+      opacity: 0.5;
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--text-primary) !important;
+      margin-bottom: 2px;
+      font-size: 0.95rem;
+    }
+
+    .feature span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       WHY $ELOKO
+       ============================================ */
+    .why { background: var(--dark-1); }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .why-card {
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.08);
+      border-radius: var(--radius);
+      padding: 40px 28px;
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .why-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-fire);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+      transform-origin: left;
+    }
+
+    .why-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .why-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(255, 106, 0, 0.3);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 106, 0, 0.08);
+    }
+
+    .why-card:hover::before { transform: scaleX(1); }
+    .why-card:hover::after { opacity: 1; }
+
+    .why-card.featured {
+      border-color: rgba(255, 106, 0, 0.25);
+      background: linear-gradient(180deg, rgba(255, 106, 0, 0.06) 0%, var(--dark-3) 100%);
+    }
+
+    .why-card.featured::before { transform: scaleX(1); }
+
+    .card-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--gradient-fire);
+      color: var(--dark-1);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.6rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      z-index: 1;
+    }
+
+    .card-icon {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.3;
+    }
+
+    .why-card h4 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .why-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       TOKENOMICS
+       ============================================ */
+    .tokenomics {
+      background: var(--dark-2);
+      background-image: radial-gradient(ellipse at 80% 50%, rgba(255, 106, 0, 0.03) 0%, transparent 50%);
+    }
+
+    .tokenomics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 64px;
+    }
+
+    .token-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .token-ring {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      margin-bottom: 28px;
+    }
+
+    .token-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .token-progress {
+      animation: ring-fill 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      filter: drop-shadow(0 0 8px rgba(255, 106, 0, 0.5));
+    }
+
+    @keyframes ring-fill {
+      from { stroke-dashoffset: 283; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .token-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .token-percent {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .token-sublabel {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+
+    .token-card h4 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .token-card > p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .token-details {
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.08);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.3s ease;
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row:hover { background: rgba(255, 106, 0, 0.03); }
+
+    .detail-label {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .detail-value {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .detail-value.fire { color: var(--fire-2); }
+
+    .highlight-row {
+      background: rgba(255, 106, 0, 0.05) !important;
+      border-top: 1px solid rgba(255, 106, 0, 0.15) !important;
+    }
+
+    /* CA Box */
+    .ca-box {
+      margin-top: 64px;
+      text-align: center;
+    }
+
+    .ca-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .ca-address {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.12);
+      padding: 18px 28px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .ca-address:hover {
+      border-color: var(--fire-1);
+      box-shadow: 0 0 30px rgba(255, 106, 0, 0.1);
+    }
+
+    .ca-address code {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      color: var(--fire-2);
+      letter-spacing: 2px;
+    }
+
+    .copy-btn {
+      background: rgba(255, 106, 0, 0.1);
+      border: none;
+      color: var(--fire-2);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .copy-btn:hover { background: rgba(255, 106, 0, 0.2); }
+    .copy-btn.copied { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+
+    /* ============================================
+       HOW TO BUY
+       ============================================ */
+    .how-to-buy { background: var(--dark-1); }
+
+    .steps-grid {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 0;
+      margin-top: 64px;
+      flex-wrap: wrap;
+    }
+
+    .step-card {
+      flex: 1;
+      min-width: 200px;
+      max-width: 260px;
+      text-align: center;
+      padding: 40px 24px;
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.08);
+      border-radius: var(--radius);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .step-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 106, 0, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 106, 0, 0.08);
+    }
+
+    .step-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 18px;
+      opacity: 0.3;
+      line-height: 1;
+    }
+
+    .step-card:hover .step-number { opacity: 0.6; }
+
+    .step-card h4 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .step-connector {
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      color: var(--fire-1);
+      font-size: 1.5rem;
+      opacity: 0.25;
+    }
+
+    /* ============================================
+       COMMUNITY
+       ============================================ */
+    .community {
+      background: var(--dark-2);
+      background-image: radial-gradient(ellipse at 50% 80%, rgba(255, 106, 0, 0.03) 0%, transparent 50%);
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .social-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 44px 24px;
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.08);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .social-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--fire-1);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 50px rgba(255, 106, 0, 0.12);
+    }
+
+    .social-icon {
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 106, 0, 0.08);
+      border-radius: 50%;
+      margin-bottom: 22px;
+      color: var(--fire-2);
+      transition: all 0.4s ease;
+    }
+
+    .social-card:hover .social-icon {
+      background: var(--gradient-fire);
+      color: var(--dark-1);
+      transform: scale(1.12) rotate(5deg);
+      box-shadow: 0 8px 30px rgba(255, 106, 0, 0.3);
+    }
+
+    .social-card h4 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+
+    .social-card p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* ============================================
+       CTA BANNER
+       ============================================ */
+    .cta-banner {
+      padding: 80px 0 100px;
+      position: relative;
+      z-index: 2;
+      background: var(--dark-1);
+    }
+
+    .cta-inner {
+      position: relative;
+      background: var(--dark-3);
+      border: 1px solid rgba(255, 106, 0, 0.15);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      padding: 100px 40px;
+    }
+
+    .cta-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.2;
+      filter: saturate(1.3);
+    }
+
+    .cta-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(255, 69, 0, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 50%, rgba(255, 149, 0, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 100%, rgba(255, 106, 0, 0.15) 0%, transparent 50%);
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .cta-content h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(255, 106, 0, 0.3));
+    }
+
+    .cta-content p {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      margin-bottom: 36px;
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+    .footer {
+      background: var(--dark-2);
+      border-top: 1px solid rgba(255, 106, 0, 0.08);
+      padding: 60px 0 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 106, 0, 0.4);
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);
+    }
+
+    .footer-name {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+      background: var(--gradient-fire);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover { color: var(--fire-2); }
+
+    .footer-bottom { text-align: center; }
+    .footer-bottom p {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto 8px;
+    }
+
+    .copyright {
+      color: var(--text-secondary) !important;
+      font-weight: 600;
+      font-size: 0.82rem !important;
+    }
+
+    /* ============================================
+       SCROLL ANIMATIONS
+       ============================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1024px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+      .about-image { order: -1; }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .tokenomics-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .navbar .nav-cta { display: none; }
+      .mobile-menu-btn { display: flex; }
+      .hero-content { padding: 120px 16px 80px; }
+      .hero-stats { gap: 24px; padding: 24px 28px; }
+      .stat-divider { display: none; }
+      .why-grid { grid-template-columns: 1fr; }
+      .steps-grid { flex-direction: column; align-items: center; }
+      .step-connector { transform: rotate(90deg); margin: -8px 0; }
+      .step-card { max-width: 100%; width: 100%; }
+      .social-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .footer-top { flex-direction: column; gap: 24px; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .section { padding: 80px 0; }
+      .cta-inner { padding: 60px 24px; }
+      .about-img, .about-img-fallback { width: 260px; height: 260px; }
+      .hero-mascot { width: 140px; height: 140px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 4rem; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 300px; justify-content: center; }
+      .ca-address { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <img src="images/eloko.jpeg" alt="Eloko" class="nav-logo-img">
+        <span>$ELOKO</span>
+      </a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#why">Why $ELOKO</a>
+        <a href="#tokenomics">Tokenomics</a>
+        <a href="#how-to-buy">How to Buy</a>
+        <a href="#community">Community</a>
+      </div>
+      <a href="https://jup.ag/swap/SOL-FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump" class="nav-cta" target="_blank" rel="noopener">Buy $ELOKO</a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about">About</a>
+    <a href="#why">Why $ELOKO</a>
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="#how-to-buy">How to Buy</a>
+    <a href="#community">Community</a>
+    <a href="https://jup.ag/swap/SOL-FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump" class="nav-cta" style="text-align:center;display:block;margin-top:8px;" target="_blank" rel="noopener">Buy $ELOKO</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-banner-bg">
+      <img src="images/Banner.jpg" alt="Eloko Banner">
+      <div class="hero-banner-overlay"></div>
+    </div>
+    <div class="hero-bg">
+      <div class="hero-gradient"></div>
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+      <div class="hero-grid-overlay"></div>
+      <div class="hero-bottom-fade"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        THE ANIMAL RUNNER OF APRIL
+      </div>
+
+      <div class="hero-mascot">
+        <div class="mascot-glow"></div>
+        <img src="images/eloko.jpeg" alt="Eloko" class="mascot-img">
+      </div>
+
+      <h1 class="hero-title">
+        <span class="title-dollar">$</span>ELOKO
+      </h1>
+      <p class="hero-subtitle">Next San Diego Zoo animal to <span class="highlight">1 Million</span></p>
+      <p class="hero-desc">San Diego Zoo is naming their new cheetah cub. The internet already picked the winner. You're looking at him.</p>
+      <div class="hero-buttons">
+        <a href="https://jup.ag/swap/SOL-FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump" class="btn btn-primary" target="_blank" rel="noopener">
+          Buy $ELOKO
+        </a>
+        <a href="https://sandiegozoowildlifealliance.org/cheetah-cub-poll?utm_source=sdzwa&utm_medium=social&utm_campaign=cheetah&utm_content=poll&utm_term=poll" class="btn btn-secondary" target="_blank" rel="noopener">Vote for the Name</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value" id="statHolders">—</span>
+          <span class="stat-label">Holders</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="statPrice">—</span>
+          <span class="stat-label">Price</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="statMcap">—</span>
+          <span class="stat-label">Market Cap</span>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- Ticker -->
+  <div class="ticker-bar">
+    <div class="ticker-content">
+      <span>$ELOKO</span>
+      <span>SAN DIEGO ZOO CHEETAH CUB</span>
+      <span>FASTEST ANIMAL ON EARTH</span>
+      <span>THE ANIMAL RUNNER OF APRIL</span>
+      <span>70 MPH</span>
+      <span>$ELOKO</span>
+      <span>SAN DIEGO ZOO CHEETAH CUB</span>
+      <span>FASTEST ANIMAL ON EARTH</span>
+      <span>THE ANIMAL RUNNER OF APRIL</span>
+      <span>70 MPH</span>
+    </div>
+  </div>
+
+  <!-- About -->
+  <section class="section about" id="about">
+    <div class="section-glow"></div>
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image reveal-left">
+          <div class="image-glow"></div>
+          <img src="images/eloko.jpeg" alt="Eloko Cheetah Cub" class="about-img">
+          <div class="image-badge">San Diego Zoo</div>
+        </div>
+        <div class="about-text reveal-right">
+          <h2 class="section-tag">ABOUT</h2>
+          <h3 class="section-title">Meet <span class="highlight">Eloko</span></h3>
+          <p>This little guy is a cheetah cub at the <strong>San Diego Zoo</strong>. They're running a public vote to name him right now — and "Eloko" is one of the options.</p>
+          <p>Cheetahs are the fastest land animal alive. 70mph. This cub already looks like he's on fire. The memes made themselves.</p>
+          <p>Zoo animals going viral isn't new. But this time, there's a token. And you're still early.</p>
+          <div class="about-features">
+            <div class="feature">
+              <span class="feature-icon">/</span>
+              <div>
+                <strong>Real Animal</strong>
+                <span>Actual cub at San Diego Zoo</span>
+              </div>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">/</span>
+              <div>
+                <strong>Name Vote Live Now</strong>
+                <span>Zoo poll is open — media incoming</span>
+              </div>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">/</span>
+              <div>
+                <strong>Built Different</strong>
+                <span>70mph IRL. Even faster on chain</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why $ELOKO -->
+  <section class="section why" id="why">
+    <div class="section-glow"></div>
+    <div class="container">
+      <h2 class="section-tag center reveal">WHY $ELOKO</h2>
+      <h3 class="section-title center reveal">Why This <span class="highlight">Runs</span></h3>
+      <p class="section-desc center reveal">Every cycle has its animal. April 2025, it's a cheetah.</p>
+      <div class="why-grid">
+        <div class="why-card reveal">
+          <div class="card-icon">01</div>
+          <h4>It's Real</h4>
+          <p>Not a drawing. Not AI art. A real cheetah cub at the San Diego Zoo with a naming vote happening right now.</p>
+        </div>
+        <div class="why-card featured reveal">
+          <div class="card-badge">ALPHA</div>
+          <div class="card-icon">02</div>
+          <h4>Free Catalyst</h4>
+          <p>When the zoo announces the name, every news outlet covers it. That's a free marketing event you can't buy.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="card-icon">03</div>
+          <h4>Memes Write Themselves</h4>
+          <p>Look at this cub. He literally looks like he's on fire. You don't need to force this meme — it just works.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="card-icon">04</div>
+          <h4>Fastest Animal Alive</h4>
+          <p>Cheetahs hit 70mph. The ticker tape writes the jokes for you. Speed runs in the blood.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="card-icon">05</div>
+          <h4>Normie Magnet</h4>
+          <p>Your mom likes baby animals. Your girlfriend likes the zoo. This isn't just a crypto play — everyone gets it.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="card-icon">06</div>
+          <h4>You're Early</h4>
+          <p>Name hasn't been announced yet. Media cycle hasn't started. You found this before the wave hit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tokenomics -->
+  <section class="section tokenomics" id="tokenomics">
+    <div class="section-glow"></div>
+    <div class="container">
+      <h2 class="section-tag center reveal">TOKENOMICS</h2>
+      <h3 class="section-title center reveal">Built for <span class="highlight">Speed</span></h3>
+      <div class="tokenomics-grid">
+        <div class="token-card reveal-left">
+          <div class="token-ring">
+            <svg viewBox="0 0 100 100" class="token-svg">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,106,0,0.08)" stroke-width="8"/>
+              <circle cx="50" cy="50" r="45" fill="none" stroke="url(#fireGrad)" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" stroke-linecap="round" class="token-progress"/>
+              <defs>
+                <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#ff4500"/>
+                  <stop offset="50%" style="stop-color:#ff6a00"/>
+                  <stop offset="100%" style="stop-color:#ffcc00"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="token-center">
+              <span class="token-percent">100%</span>
+              <span class="token-sublabel">LP</span>
+            </div>
+          </div>
+          <h4>Liquidity Pool</h4>
+          <p>All tokens in the LP. No presale. No team allocation. No BS.</p>
+        </div>
+        <div class="token-details reveal-right">
+          <div class="detail-row">
+            <span class="detail-label">Token Name</span>
+            <span class="detail-value">ELOKO</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Ticker</span>
+            <span class="detail-value">$ELOKO</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Network</span>
+            <span class="detail-value">Solana</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Tax</span>
+            <span class="detail-value fire">0% Buy / 0% Sell</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">LP</span>
+            <span class="detail-value fire">Burned</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Mint</span>
+            <span class="detail-value fire">Revoked</span>
+          </div>
+          <div class="detail-row highlight-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value fire">SAFE & BASED</span>
+          </div>
+        </div>
+      </div>
+      <div class="ca-box reveal">
+        <span class="ca-label">Contract Address</span>
+        <div class="ca-address" id="caAddress">
+          <code>FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump</code>
+          <button class="copy-btn" id="copyBtn" title="Copy CA">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to Buy -->
+  <section class="section how-to-buy" id="how-to-buy">
+    <div class="section-glow"></div>
+    <div class="container">
+      <h2 class="section-tag center reveal">HOW TO BUY</h2>
+      <h3 class="section-title center reveal">Get Your <span class="highlight">$ELOKO</span> in 4 Steps</h3>
+      <div class="steps-grid">
+        <div class="step-card reveal">
+          <div class="step-number">01</div>
+          <h4>Create a Wallet</h4>
+          <p>Download <strong>Phantom</strong> or <strong>Solflare</strong> from your app store or browser extension.</p>
+        </div>
+        <div class="step-connector">➜</div>
+        <div class="step-card reveal">
+          <div class="step-number">02</div>
+          <h4>Get SOL</h4>
+          <p>Buy <strong>SOL</strong> on Coinbase or Binance and send it to your wallet.</p>
+        </div>
+        <div class="step-connector">➜</div>
+        <div class="step-card reveal">
+          <div class="step-number">03</div>
+          <h4>Go to Jupiter</h4>
+          <p>Head to <strong>Jupiter</strong> and paste the $ELOKO contract address, or just click our buy button.</p>
+        </div>
+        <div class="step-connector">➜</div>
+        <div class="step-card reveal">
+          <div class="step-number">04</div>
+          <h4>Swap for $ELOKO</h4>
+          <p>Set your slippage, swap SOL for <strong>$ELOKO</strong>, and join the fastest pack on Solana.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community -->
+  <section class="section community" id="community">
+    <div class="section-glow"></div>
+    <div class="container">
+      <h2 class="section-tag center reveal">COMMUNITY</h2>
+      <h3 class="section-title center reveal">Join the <span class="highlight">Pack</span></h3>
+      <p class="section-desc center reveal">Links below. Get in or watch from the sidelines.</p>
+      <div class="social-grid">
+        <a href="https://x.com/i/communities/2039211725115797777" class="social-card reveal" target="_blank" rel="noopener">
+          <div class="social-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </div>
+          <h4>X Community</h4>
+          <p>Join the $ELOKO community</p>
+        </a>
+        <a href="https://sandiegozoowildlifealliance.org/cheetah-cub-poll?utm_source=sdzwa&utm_medium=social&utm_campaign=cheetah&utm_content=poll&utm_term=poll" class="social-card reveal" target="_blank" rel="noopener">
+          <div class="social-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <h4>Vote for the Name</h4>
+          <p>San Diego Zoo official poll</p>
+        </a>
+        <a href="https://x.com/sandiegozoo/status/2039175151900893290" class="social-card reveal" target="_blank" rel="noopener">
+          <div class="social-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          </div>
+          <h4>OG Zoo Tweet</h4>
+          <p>The tweet that started it all</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <div class="container">
+      <div class="cta-inner">
+        <img src="images/Banner.jpg" alt="" class="cta-bg-img">
+        <div class="cta-bg-gradient"></div>
+        <div class="cta-content reveal">
+          <h3>He's Already Running</h3>
+          <p>The fastest animal on Earth doesn't wait around. Neither should you.</p>
+          <a href="https://jup.ag/swap/SOL-FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
+            Buy on Jupiter
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="images/eloko.jpeg" alt="Eloko" class="footer-logo-img">
+          <span class="footer-name">$ELOKO</span>
+        </div>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#why">Why $ELOKO</a>
+          <a href="#tokenomics">Tokenomics</a>
+          <a href="#how-to-buy">How to Buy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>$ELOKO is a meme coin. Don't put in more than you can afford to lose. This is not financial advice. Just a really fast cub.</p>
+        <p class="copyright">$ELOKO 2025 — The Animal Runner of April</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ============================================
+    // FIRE PARTICLE SYSTEM
+    // ============================================
+    (function() {
+      const canvas = document.getElementById('particles');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let animId;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const fireColors = [
+        { r: 255, g: 106, b: 0 },
+        { r: 255, g: 149, b: 0 },
+        { r: 255, g: 204, b: 0 },
+        { r: 255, g: 69, b: 0 },
+        { r: 255, g: 120, b: 20 },
+      ];
+
+      class Spark {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = canvas.height + 20;
+          this.size = Math.random() * 2.5 + 0.5;
+          this.speedY = -(Math.random() * 1.2 + 0.3);
+          this.speedX = (Math.random() - 0.5) * 0.6;
+          this.opacity = Math.random() * 0.5 + 0.15;
+          this.life = 0;
+          this.maxLife = Math.random() * 300 + 150;
+          this.color = fireColors[Math.floor(Math.random() * fireColors.length)];
+          this.wobble = Math.random() * 0.03;
+        }
+        update() {
+          this.y += this.speedY;
+          this.x += this.speedX + Math.sin(this.life * this.wobble) * 0.4;
+          this.life++;
+          this.opacity -= 0.0015;
+          this.size -= 0.003;
+          if (this.life > this.maxLife || this.opacity <= 0 || this.y < -20) this.reset();
+        }
+        draw() {
+          if (this.opacity <= 0 || this.size <= 0) return;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},${this.opacity})`;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = `rgba(${this.color.r},${this.color.g},${this.color.b},${this.opacity * 0.4})`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      const count = Math.min(80, Math.floor(window.innerWidth / 18));
+      for (let i = 0; i < count; i++) {
+        const s = new Spark();
+        s.y = Math.random() * canvas.height;
+        s.life = Math.random() * 100;
+        particles.push(s);
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        animId = requestAnimationFrame(animate);
+      }
+      animate();
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(animId);
+        else animate();
+      });
+    })();
+
+    // ============================================
+    // NAVBAR
+    // ============================================
+    (function() {
+      const nav = document.querySelector('.navbar');
+      window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.pageYOffset > 50);
+      });
+    })();
+
+    // ============================================
+    // MOBILE MENU
+    // ============================================
+    (function() {
+      const btn = document.getElementById('mobileMenuBtn');
+      const menu = document.getElementById('mobileMenu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('active');
+      });
+      menu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => menu.classList.remove('active'));
+      });
+    })();
+
+    // ============================================
+    // SCROLL REVEAL
+    // ============================================
+    (function() {
+      const els = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+
+      // Hero elements — stagger in immediately
+      document.querySelectorAll('.hero .reveal, .hero .reveal-left, .hero .reveal-right').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 300 + i * 180);
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const parent = entry.target.parentElement;
+            const siblings = parent ? [...parent.children].filter(c =>
+              c.classList.contains('reveal') || c.classList.contains('reveal-left') || c.classList.contains('reveal-right')
+            ) : [];
+            const idx = siblings.indexOf(entry.target);
+            setTimeout(() => entry.target.classList.add('visible'), Math.max(0, idx) * 120);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+      els.forEach(el => {
+        if (!el.closest('.hero')) observer.observe(el);
+      });
+    })();
+
+    // ============================================
+    // COPY CA
+    // ============================================
+    (function() {
+      const btn = document.getElementById('copyBtn');
+      const box = document.getElementById('caAddress');
+      if (!btn || !box) return;
+
+      function doCopy() {
+        const code = box.querySelector('code');
+        if (!code || code.textContent.trim() === 'COMING SOON') return;
+        navigator.clipboard.writeText(code.textContent.trim()).then(() => {
+          btn.classList.add('copied');
+          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+          }, 2000);
+        });
+      }
+      btn.addEventListener('click', doCopy);
+      box.addEventListener('click', doCopy);
+    })();
+
+    // ============================================
+    // LIVE TOKEN DATA
+    // ============================================
+    const MINT = 'FcGBCRKqafsfGK2cCk21TwK8ybnT2WKRZmXwHJm1pump';
+    const RPC = 'https://api.mainnet-beta.solana.com';
+
+    async function fetchHolders() {
+      try {
+        // Get token largest accounts to estimate holder count
+        // Use getProgramAccounts with the token mint filter
+        const res = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getTokenLargestAccounts',
+            params: [MINT]
+          })
+        });
+        const data = await res.json();
+        if (data.result && data.result.value) {
+          // This gives top 20, use as a proxy or try supply approach
+          const holders = data.result.value.filter(a => parseFloat(a.amount) > 0).length;
+          // For actual count, we need to get all token accounts
+          const countRes = await fetch(RPC, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 2,
+              method: 'getProgramAccounts',
+              params: [
+                'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                {
+                  encoding: 'jsonParsed',
+                  filters: [
+                    { dataSize: 165 },
+                    { memcmp: { offset: 0, bytes: MINT } }
+                  ]
+                }
+              ]
+            })
+          });
+          const countData = await countRes.json();
+          if (countData.result) {
+            const activeHolders = countData.result.filter(acc => {
+              const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
+              return amt && amt > 0;
+            }).length;
+            document.getElementById('statHolders').textContent = activeHolders.toLocaleString();
+          }
+        }
+      } catch (e) {
+        console.log('Holders fetch error:', e);
+      }
+    }
+
+    async function fetchPrice() {
+      try {
+        const res = await fetch('https://api.jup.ag/price/v2?ids=' + MINT);
+        const data = await res.json();
+        if (data.data && data.data[MINT]) {
+          const price = parseFloat(data.data[MINT].price);
+          const priceEl = document.getElementById('statPrice');
+          const mcapEl = document.getElementById('statMcap');
+
+          if (price < 0.0001) {
+            priceEl.textContent = '$' + price.toExponential(2);
+          } else if (price < 1) {
+            priceEl.textContent = '$' + price.toFixed(6);
+          } else {
+            priceEl.textContent = '$' + price.toFixed(4);
+          }
+
+          // Estimate mcap (1B supply for pump.fun tokens)
+          const mcap = price * 1000000000;
+          if (mcap >= 1000000) {
+            mcapEl.textContent = '$' + (mcap / 1000000).toFixed(1) + 'M';
+          } else if (mcap >= 1000) {
+            mcapEl.textContent = '$' + (mcap / 1000).toFixed(1) + 'K';
+          } else {
+            mcapEl.textContent = '$' + mcap.toFixed(0);
+          }
+        }
+      } catch (e) {
+        console.log('Price fetch error:', e);
+      }
+    }
+
+    // Fetch on load and refresh every 30s
+    fetchHolders();
+    fetchPrice();
+    setInterval(fetchHolders, 30000);
+    setInterval(fetchPrice, 30000);
+
+    // ============================================
+    // SMOOTH SCROLL
+    // ============================================
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        const t = document.querySelector(this.getAttribute('href'));
+        if (t) {
+          window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
